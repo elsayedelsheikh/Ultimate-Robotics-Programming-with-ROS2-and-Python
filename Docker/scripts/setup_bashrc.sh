@@ -1,5 +1,6 @@
 #!/bin/bash
 source /opt/ros/humble/setup.bash
+sudo chown user:user /home/user/ros2_ws
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 #colcon build --symlink-install
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
