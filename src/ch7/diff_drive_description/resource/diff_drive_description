@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+
+<robot name="diff_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+    
+    <xacro:include filename="$(find diff_drive_description)/urdf/diff_robot_macro.xacro" /> 
+
+
+	<link name="base_link">
+		<inertial>
+				<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+			<mass value="${base_mass}" />
+			<origin xyz="0 0 0" />
+			<cylinder_inertia  m="${base_mass}" r="${base_radius}" h="${base_height}" />
+		</inertial>    
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<cylinder length="${base_height}" radius="${base_radius}" />
+			</geometry>
+			<material name="White" />
+		</visual>  
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0 " />
+			<geometry>
+				<cylinder length="${base_height}" radius="${base_radius}" />
+			</geometry>
+		</collision>     
+	</link>
+
+	<joint name="sensor_joint" type="fixed">
+		<parent link="base_link" />
+		<child link="sensor_link" />
+		<origin xyz="0.0 0.0 0.1" rpy="0 0 0"/>
+	</joint>
+
+	<xacro:caster_joint 
+		name="caster_front_link"
+		parent="base_link"
+		child="caster_front_link">
+		<origin xyz="0.115 0.0 0.007" rpy="${-M_PI/2} 0 0"/>
+	</xacro:caster_joint>
+
+	<xacro:caster_link
+		name="caster_front_link">
+			<origin xyz="0 0.02 0" rpy="${M_PI/2} 0 0" />
+	</xacro:caster_link>
+	
+	<xacro:caster_joint 
+		name="caster_back_joint"
+		parent="base_link"
+		child="caster_back_link">
+		<origin xyz="-0.135 0.0 0.009" rpy="${-M_PI/2} 0 0"/>
+	</xacro:caster_joint>
+
+	<xacro:caster_link name="caster_back_link">
+			<origin xyz="0.02 0.02 0 " rpy="${M_PI/2} 0 0" /> 
+	</xacro:caster_link>
+
+	<xacro:wheel fb="front" lr="right" parent="base_link" translateX="0" translateY="-0.5" flipY="1"/>
+	<xacro:wheel fb="front" lr="left" parent="base_link" translateX="0" translateY="0.5" flipY="1"/>
+  
+
+</robot>
