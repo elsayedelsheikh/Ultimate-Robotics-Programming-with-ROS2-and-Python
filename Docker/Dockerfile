@@ -63,7 +63,10 @@ RUN apt-get install ros-humble-joy -y
 RUN apt-get install gedit -y
 RUN apt-get install nano -y
 RUN apt-get install ros-humble-moveit -y
-#RUN apt-get install ros-humble-moveit-* -y
+RUN apt-get install vlc -y
+RUN apt-get install ros-humble-camera-calibration -y    
+RUN apt-get install ros-humble-realsense2-* -y    
+
 
 
 USER user
