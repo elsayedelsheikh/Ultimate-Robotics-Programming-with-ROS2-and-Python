@@ -2,3 +2,8 @@ yolov8:
   ros__parameters:
     camera_topic: "/camera/image_raw"
     detection_threshold: 0.3
+
+seek_and_go:
+  ros__parameters:
+    kx: 0.1
+    kyaw: 0.2

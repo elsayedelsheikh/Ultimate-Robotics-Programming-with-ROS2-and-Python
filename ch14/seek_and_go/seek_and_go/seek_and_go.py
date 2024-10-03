@@ -1,121 +1,228 @@
 import rclpy
-from yolo_msgs.msg import DetectedObject, DetectedObjectList
 from rclpy.node import Node
-
-
 from std_msgs.msg import String
-from nav2_msgs.action import NavigateToPose
-from geometry_msgs.msg import PoseStamped
-from rclpy.action import ActionClient
-from rclpy.executors import SingleThreadedExecutor
 from rclpy.duration import Duration
-from threading import Thread
-
 from rclpy.node import Node
 from tf2_ros import TransformListener, Buffer
-#import tf_transformations
-from geometry_msgs.msg import TransformStamped
-from rclpy.duration import Duration
-import numpy as np
-#import tf_transformations 
+from scipy.spatial.transform import Rotation as R
+from geometry_msgs.msg import Twist 
+from sensor_msgs.msg import CameraInfo, Image
+from cv_bridge import CvBridge
+import math
+import time
+from threading import Thread
+from yolo_msgs.msg import DetectedObject, DetectedObjectList
+
 
 class SeekAndGo(Node):  
     def __init__(self):
         super().__init__('seek_and_go')
 
+        self.declare_parameter('kx', 0.1)
+        self.declare_parameter('kyaw', 0.05)
+
+        self.kx = self.get_parameter('kx').get_parameter_value().double_value
+        self.kyaw = self.get_parameter('kyaw').get_parameter_value().double_value 
+        
+        self.get_logger().info("kx: {}, kyaw: {}".format(self.kx, self.kyaw))
+        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        
         self.obj_input_sub = self.create_subscription(String, '/object_to_seek', self.object_to_seek_input, 1)
+        self.yolo_input_sub = self.create_subscription(DetectedObjectList, '/yolo/detections/list', self.yolo_detections, 10)
+        self.subscription = self.create_subscription(Image, '/depth/image_raw', self.depth_image_callback, 10 )
+        self.camera_info_sub = self.create_subscription(CameraInfo, '/camera/camera_info', self.camera_info_callback, 10)
 
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-
-        # Periodically check for the transform between map and base_link
-        self.timer = self.create_timer(1.0, self.get_transform)
-
+        self.timer = self.create_timer(0.5, self.get_transform)
         self.object_to_seek = None
         self.new_object_to_seek = False
-        self.reahing_obj = False
+        self.obj_list = DetectedObjectList()
+        self.bridge = CvBridge()
+        self.depth_image = None
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.yaw = 0
 
-        self.timer = self.create_timer(0.2, self.get_transform)
+        self.first_tf_data = False
+        self.first_cam_info = False
+        self.first_depth = False
+        self.first_yolo = False
+        self.reaching_obj = False
+        self.obj_reached = False
+
+    def camera_info_callback(self, msg):
+        camera_matrix = msg.k  
+        self.cx = camera_matrix[2]
+        self.cy = camera_matrix[5]
+        self.fx_inv = 1.0 / camera_matrix[0]
+        self.fy_inv = 1.0 / camera_matrix[4]
+
+        self.first_cam_info = True
+    
+    def depth_image_callback(self, msg):
+        try:
+            self.depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='32FC1')
+            self.first_depth = True   
+        except Exception as e:
+            self.get_logger().error(f"Failed to convert depth image: {str(e)}")
+
+    def yolo_detections( self, msg ):
+        #self.get_logger().info("Info")
+
+        self.obj_list = msg
+        self.first_yolo = True
 
     def get_transform(self):
         try:
-            # Try to get the transform between map and base_link
-            now = rclpy.time.Time()
-            transform = self.tf_buffer.lookup_transform('map', 'base_link', now, Duration(seconds=1.0))
-
-            # Extract the yaw from the transform's rotation
-            yaw = self.get_yaw_from_transform(transform)
-            self.get_logger().info(f"Yaw (in radians): {yaw}")
-
+            transform = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time(), Duration(seconds=0.1))
+            rotation = transform.transform.rotation
+            quaternion = [rotation.x, rotation.y, rotation.z, rotation.w]
+            rotation = R.from_quat(quaternion)
+            euler_angles = rotation.as_euler('xyz', degrees=False)
+            self.yaw = euler_angles[2]
+            self.first_tf_data = True
         except Exception as e:          
             self.get_logger().warn(f"Could not get transform: {e}")
 
-    def get_yaw_from_transform(self, transform: TransformStamped):
-        rotation = transform.transform.rotation
-        quaternion = (rotation.x, rotation.y, rotation.z, rotation.w)
-        return self.quaternion_to_euler(quaternion)[2]
-
-    def quaternion_to_euler(self, quat):
-   
-        x, y, z, w = quat
-
-        # Quaternion to Euler conversion (roll, pitch, yaw)
-        t0 = +2.0 * (w * x + y * z)
-        t1 = +1.0 - 2.0 * (x * x + y * y)
-        roll_x = np.arctan2(t0, t1)
-
-        t2 = +2.0 * (w * y - z * x)
-        t2 = +1.0 if t2 > +1.0 else t2
-        t2 = -1.0 if t2 < -1.0 else t2
-        pitch_y = np.arcsin(t2)
-
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        yaw_z = np.arctan2(t3, t4)
-
-        return roll_x, pitch_y, yaw_z
     
+    def retrieve_obj_from_list( self, obj ):
+        det_obj = DetectedObject()
+        found = False
+        i = 0
+
+        obj_list = self.obj_list
+        while( found == False and i < len(obj_list.objects) ):
+            if( obj.lower() == obj_list.objects[i].class_name.lower()):  
+                det_obj = obj_list.objects[i]
+                found = True
+            i = i+1
+        
+        return found, det_obj
+        
 
     def seek_object( self ):
-        print("Seeking object: ", self.object_to_seek)
-        return True
+        self.obj_list.objects.clear()
+        done = False
+        found = False
+        rate = self.create_rate(10)
+        v = Twist()
+        v.angular.z = 0.3
+        total_yaw = 0
+        prev_yaw = self.yaw
+        laps = 0
+        while ( done == False and found == False ):
+            found, _ = self.retrieve_obj_from_list( self.object_to_seek )
+            self.cmd_vel_pub.publish( v )
+            total_yaw = total_yaw + math.fabs( (math.fabs( self.yaw ) - math.fabs( prev_yaw )) )
+            prev_yaw = self.yaw
+            if (total_yaw > 6.2 ):
+                laps = laps + 1
+                total_yaw = 0.0
+            if( laps > 1 ):
+                done = True
+            rate.sleep()
+
+        v.angular.z = 0.0
+        self.cmd_vel_pub.publish( v )
+        return found
     
     def goto_object( self ):
-        print("Going to object: ", self.object_to_seek)
+        rate = self.create_rate(10)
+        reached = False
+        done = False 
+        vel_cmd = Twist()
+
+        while( not done and not reached ):
+
+            found, det_obj = self.retrieve_obj_from_list( self.object_to_seek )
+
+            if( found ): 
+                u = det_obj.center_x
+                v = det_obj.center_y
+                c_z = self.depth_image[v, u]
+                c_x = c_z * ( (u - self.cx ) * self.fx_inv)
+                c_y = c_z * ( (v - self.cy ) * self.fy_inv)
+            
+                x = c_z
+                y = -c_x
+ 
+                e_x = math.fabs( x )
+                e_y = math.fabs( y )
+
+                
+                vel_cmd.linear.x = self.kx*e_x 
+                if( e_x < 0.8 ):
+                    vel_cmd.linear.x = 0.0
+
+                dir = 1 
+                if ( y < 0.0 ): 
+                    dir = -1
+
+                vel_cmd.angular.z = dir*self.kyaw*e_y
+                self.cmd_vel_pub.publish( vel_cmd )    
+
+                self.get_logger().info("x: {}, y: {}".format(x, y))
+
+                self.get_logger().info("ex: {}, e_y: {}".format(e_x, e_y))
+
+                
+                if (e_x < 0.8 ):
+                    self.obj_reached = True
+                    self.get_logger().info("Object reached")
+                    reached = True
+                    done = True
+            
+                rate.sleep()
+
+            else:
+                self.get_logger().info("Object lost!")
+
+                vel_cmd.linear.x = 0.0
+                vel_cmd.angular.z = 0.0
+                self.cmd_vel_pub.publish( vel_cmd )    
 
 
+                done = True # Exit from the loop
+        
+        return reached
 
     def main_loop(self):
+
+        while ( not self.first_tf_data and 
+               not self.first_cam_info and not self.first_depth and not self.first_yolo):
+            time.sleep(0.1)
+
         rate = self.create_rate(2)
         obj_found = False
-        obj_reached = False
-
+        v = Twist()
+        v.angular.z = 0.0
+        self.cmd_vel_pub.publish( v )
 
         while rclpy.ok():
-
-            if ( self.reahing_obj == False):
-
-                if self.new_object_to_seek:
-                    self.reahing_obj = True
-            
-                    obj_found = self.seek_object()             
-                    self.new_object_to_seek = False
-
+            if self.new_object_to_seek:
+                self.reaching_obj = True
+                obj_found = self.seek_object()             
                 if( obj_found == True):
-                    self.goto_object()
-
+                    self.get_logger().info("Requested object seen in the scene, navigate to it")
+                    reached = self.goto_object()
+                    if( reached ): 
+                        self.new_object_to_seek = False
+                else:
+                    print("Object not found... Try with another object")
+                    self.reaching_obj = False
 
             rate.sleep()
-    def object_to_seek_input(self, msg):        
+
+    def object_to_seek_input(self, msg): 
+        self.get_logger().info("New object to seek: {}".format(msg.data))
         self.object_to_seek = msg.data
         self.new_object_to_seek = True
-
+        self.obj_reached = False
 
     def run( self ):
         main_loop_thread = Thread(target = self.main_loop, args = ())
         main_loop_thread.start()
-        
         rclpy.spin(self)
+
 def main(args=None):
     rclpy.init(args=args)
     node = SeekAndGo()
