@@ -18,8 +18,8 @@ class SeekAndGo(Node):
     def __init__(self):
         super().__init__('seek_and_go')
 
-        self.declare_parameter('kx', 0.1)
-        self.declare_parameter('kyaw', 0.05)
+        self.declare_parameter('kx', 0.2)
+        self.declare_parameter('kyaw', 0.3)
 
         self.kx = self.get_parameter('kx').get_parameter_value().double_value
         self.kyaw = self.get_parameter('kyaw').get_parameter_value().double_value 
@@ -150,39 +150,30 @@ class SeekAndGo(Node):
 
                 
                 vel_cmd.linear.x = self.kx*e_x 
-                if( e_x < 0.8 ):
+    
+                if (e_x < 0.8  ):
                     vel_cmd.linear.x = 0.0
+                    if( e_y < 0.3 ):
+                        self.obj_reached = True
+                        self.get_logger().info("Object reached")
+                        reached = True
+                        done = True
 
                 dir = 1 
                 if ( y < 0.0 ): 
                     dir = -1
-
                 vel_cmd.angular.z = dir*self.kyaw*e_y
                 self.cmd_vel_pub.publish( vel_cmd )    
 
-                self.get_logger().info("x: {}, y: {}".format(x, y))
-
-                self.get_logger().info("ex: {}, e_y: {}".format(e_x, e_y))
-
-                
-                if (e_x < 0.8 ):
-                    self.obj_reached = True
-                    self.get_logger().info("Object reached")
-                    reached = True
-                    done = True
-            
                 rate.sleep()
 
             else:
                 self.get_logger().info("Object lost!")
-
-                vel_cmd.linear.x = 0.0
-                vel_cmd.angular.z = 0.0
-                self.cmd_vel_pub.publish( vel_cmd )    
-
-
                 done = True # Exit from the loop
-        
+
+        vel_cmd.linear.x = 0.0
+        vel_cmd.angular.z = 0.0
+        self.cmd_vel_pub.publish( vel_cmd )    
         return reached
 
     def main_loop(self):

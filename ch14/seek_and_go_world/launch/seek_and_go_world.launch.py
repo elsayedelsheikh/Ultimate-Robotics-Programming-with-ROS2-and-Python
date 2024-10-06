@@ -57,11 +57,11 @@ def generate_launch_description():
                     '-Y', '0',
                     '-topic', '/robot_description'],
                  output='screen')
-    pkg_nav2_mobile_robot = get_package_share_directory( 'nav2_mobile_robot')
-    ign_resource_path = SetEnvironmentVariable(
-        name='IGN_GAZEBO_RESOURCE_PATH',
-        value=[os.path.join(pkg_nav2_mobile_robot   )])
-    
+    #pkg_nav2_mobile_robot = get_package_share_directory( 'nav2_mobile_robot')
+    #ign_resource_path = SetEnvironmentVariable(
+    #    name='IGN_GAZEBO_RESOURCE_PATH',
+    #    value=[os.path.join(pkg_nav2_mobile_robot   )])
+    #
     sdf_file_path = os.path.join(
         FindPackageShare('seek_and_go_world').find('seek_and_go_world'),
         'world',
