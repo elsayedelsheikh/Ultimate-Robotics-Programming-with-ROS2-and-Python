@@ -64,7 +64,7 @@ class JointStateRecorder(Node):
         joint_positions_array = [pos[1] for pos in self.joint_positions]  # Adjust index for other joints
         plt.figure()
         plt.plot(self.timestamps, joint_positions_array)
-        plt.title('Pole oritnation')
+        plt.title('Pole orientation')
         plt.xlabel('Time (s)')
         plt.ylabel('Position (rad)')
         plt.grid(True)
