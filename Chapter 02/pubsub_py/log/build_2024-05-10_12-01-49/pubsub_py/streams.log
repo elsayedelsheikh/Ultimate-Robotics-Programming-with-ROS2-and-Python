@@ -1,0 +1,37 @@
+[0.594s] Invoking command in '/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py': PS1=\W $ PYTHONPATH=/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/prefix_override:/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/pubsub_py build --build-base /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build install --record /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/install.log --single-version-externally-managed install_data
+[0.812s] running egg_info
+[0.812s] creating build/pubsub_py/pubsub_py.egg-info
+[0.812s] writing build/pubsub_py/pubsub_py.egg-info/PKG-INFO
+[0.812s] writing dependency_links to build/pubsub_py/pubsub_py.egg-info/dependency_links.txt
+[0.813s] writing entry points to build/pubsub_py/pubsub_py.egg-info/entry_points.txt
+[0.813s] writing requirements to build/pubsub_py/pubsub_py.egg-info/requires.txt
+[0.813s] writing top-level names to build/pubsub_py/pubsub_py.egg-info/top_level.txt
+[0.813s] writing manifest file 'build/pubsub_py/pubsub_py.egg-info/SOURCES.txt'
+[0.814s] reading manifest file 'build/pubsub_py/pubsub_py.egg-info/SOURCES.txt'
+[0.815s] writing manifest file 'build/pubsub_py/pubsub_py.egg-info/SOURCES.txt'
+[0.815s] running build
+[0.815s] running build_py
+[0.816s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build
+[0.816s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib
+[0.816s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib/pubsub_py
+[0.816s] copying pubsub_py/sine_wave_pub.py -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib/pubsub_py
+[0.816s] copying pubsub_py/__init__.py -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib/pubsub_py
+[0.817s] running install
+[0.817s] running install_lib
+[0.817s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py
+[0.817s] copying /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib/pubsub_py/sine_wave_pub.py -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py
+[0.817s] copying /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build/lib/pubsub_py/__init__.py -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py
+[0.818s] byte-compiling /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py/sine_wave_pub.py to sine_wave_pub.cpython-310.pyc
+[0.818s] byte-compiling /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py/__init__.py to __init__.cpython-310.pyc
+[0.819s] running install_data
+[0.819s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/share/ament_index
+[0.819s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/share/ament_index/resource_index
+[0.819s] creating /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/share/ament_index/resource_index/packages
+[0.819s] copying resource/pubsub_py -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/share/ament_index/resource_index/packages
+[0.819s] copying package.xml -> /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/share/pubsub_py
+[0.819s] running install_egg_info
+[0.821s] Copying build/pubsub_py/pubsub_py.egg-info to /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages/pubsub_py-0.0.0-py3.10.egg-info
+[0.822s] running install_scripts
+[0.840s] Installing sine_wave_pub script to /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/pubsub_py
+[0.840s] writing list of installed files to '/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/install.log'
+[0.868s] Invoked command in '/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py' returned '0': PS1=\W $ PYTHONPATH=/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/prefix_override:/home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/install/pubsub_py/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/pubsub_py build --build-base /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/build install --record /home/jcacace/dev/urp_using_ros2/ros2_ws/src/pubsub_py/build/pubsub_py/install.log --single-version-externally-managed install_data

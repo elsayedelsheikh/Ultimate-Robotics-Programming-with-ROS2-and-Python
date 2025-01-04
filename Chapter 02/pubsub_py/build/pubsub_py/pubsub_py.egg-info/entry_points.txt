@@ -1,0 +1,3 @@
+[console_scripts]
+sine_wave_pub = pubsub_py.sine_wave_pub:main
+

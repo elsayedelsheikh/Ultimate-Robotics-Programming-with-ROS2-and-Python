@@ -5,8 +5,8 @@ FROM ubuntu:jammy
 # To check their value use these commands
 # $ id -u  (for the UID)
 # $ id -g  (for the GUI)
-ARG UID=1001
-ARG GID=1001
+ARG UID=1000
+ARG GID=1000
 
 RUN locale
 RUN apt-get update && apt-get install locales -y
@@ -63,12 +63,7 @@ RUN apt-get install ros-humble-joy -y
 RUN apt-get install gedit -y
 RUN apt-get install nano -y
 RUN apt-get install ros-humble-moveit -y
-RUN apt-get install vlc -y
-RUN apt-get install ros-humble-camera-calibration -y    
-RUN apt-get install ros-humble-realsense2-* -y    
-
-RUN apt-get install python3-pip -y
-RUN pip3 install ultralytics
+#RUN apt-get install ros-humble-moveit-* -y
 
 
 USER user

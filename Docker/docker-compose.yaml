@@ -11,7 +11,7 @@ services:
         - ~/.xauth_docker/share/:/tmp/xauth/
         - /dev/input:/dev/input
         - /dev/bus/usb:/dev/bus/usb
-        - ../:/home/user/ros2_ws/src:rw 
+        - ../:/home/user/ros2_ws:rw 
         - ./scripts:/scripts
       environment:
         - DISPLAY=$DISPLAY
