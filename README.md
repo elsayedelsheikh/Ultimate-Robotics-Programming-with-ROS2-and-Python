@@ -1,4 +1,4 @@
-# Ultimate Robotics Programming with ROS 2 and Python 
+# Ultimate Robotics Programming with ROS 2 and Python
 
 This is the repository of the book [Ultimate Robotics Programming with ROS 2 and Python ](https://orangeava.com/products/ultimate-robotics-programming-with-ros-2-and-python?srsltid=AfmBOopHMyCS6aDWC6Oq6y7RQwghixWl4OssphNbeJalJz1fQS0c5Q9Y) publihsed by  by Orange AVA™. 
 
